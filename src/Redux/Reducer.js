@@ -5,8 +5,9 @@ import {
 } from "./ActionTypes";
 
 const initState = {
+  movieTitle: "",
   isLoading: false,
-  data: [],
+  movies: [],
   error: "",
 };
 
@@ -16,18 +17,19 @@ const reducer = (state = initState, action) => {
       return {
         ...state,
         isLoading: true,
+        movieTitle: action.payload,
       };
     case FETCH_DATA_SUCCESS:
       return {
         ...state,
         isLoading: false,
-        data: action.data,
+        movies: action.payload,
       };
     case FETCH_DATA_FAILURE:
       return {
         ...state,
         isLoading: false,
-        error: action.error,
+        error: action.payload,
       };
     default:
       return state;

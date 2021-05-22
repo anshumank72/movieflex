@@ -10,13 +10,14 @@ import { Card, Grid, Typography } from "@material-ui/core";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import { fetchData } from "../Redux/Action";
+import { fetchData, fetchDataRequest, fetchDataSuccess } from "../Redux/Action";
+import { Fragment } from "react";
 
 const useStyles = makeStyles((theme) => ({
   banner: {
     backgroundColor: fade(theme.palette.text.secondary, 0.02),
     height: "100vh",
-    padding: "20px",
+    padding: "20px 200px",
   },
   Input: {
     display: "flex",
@@ -28,12 +29,12 @@ const useStyles = makeStyles((theme) => ({
     padding: "2px 4px",
     display: "flex",
     alignItems: "center",
-    width: 400,
+    width: "45%",
     borderRadius: "25px",
     backgroundColor: fade(theme.palette.common.white, 0.15),
     transition: "width 0.5s",
     "&:hover": {
-      width: "45%",
+      width: "55%",
       backgroundColor: fade(theme.palette.common.white, 0.25),
     },
   },
@@ -55,12 +56,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Banner(props) {
+function Banner({ isloading, data, movieTitle, fetchData, fetchDataRequest }) {
   const classes = useStyles();
-  const [movieTitle, setMovieTitle] = useState("Spider-Man");
-  useEffect(() => {
-    props.fetchData({ movieTitle: "Spider-Man" });
-  }, []);
+
+  const changeHandler = (e) => {
+    fetchDataRequest(e.target.value);
+  };
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    fetchData(movieTitle);
+  };
 
   return (
     <div className={classes.banner}>
@@ -70,6 +76,7 @@ function Banner(props) {
             type="submit"
             className={classes.iconButton}
             aria-label="search"
+            onSubmit={handleClick}
           >
             <SearchIcon />
           </IconButton>
@@ -77,43 +84,46 @@ function Banner(props) {
             className={classes.input}
             placeholder="Search Movies"
             inputProps={{ "aria-label": "search google maps" }}
+            onChange={changeHandler}
           />
         </Paper>
         <Divider className={classes.divider} />
       </div>
-      <Grid container spacing={5}>
-        {!props.data ? (
+      <Grid container spacing={8}>
+        {!data ? (
           <div>Loading...</div>
         ) : (
-          <React.Fragment>
-            {props.data.map((val) => {
-              <Grid item md={4} sm={6} xs={12}>
-                <Paper className={classes.Paper} elevation={5}>
-                  <Card style={{ height: "100%" }}>
-                    <CardActionArea>
-                      <CardMedia image={val.poster} />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="h2">
-                          e.Title
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Paper>
-              </Grid>;
-            })}
-          </React.Fragment>
+          <Fragment>
+            {data.map((val) => (
+              <Grid item xs={12} sm={6} md={4}>
+                <card>
+                  <CardActionArea>
+                    <CardMedia
+                      image={val.Poster}
+                      component="img"
+                      style={{ height: 300 }}
+                    />
+                    <CardContent>
+                      <Typography>{val.Title}</Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </card>
+              </Grid>
+            ))}
+          </Fragment>
         )}
       </Grid>
     </div>
   );
 }
 const mapStateToProps = (state) => ({
+  movieTitle: state.movieTitle,
   isLoading: state.isLoading,
   data: state.data,
   error: state.error,
 });
 const mapDispatchToProps = (dispatch) => ({
+  fetchDataRequest: (payload) => dispatch(fetchDataRequest(payload)),
   fetchData: (payload) => dispatch(fetchData(payload)),
 });
 
