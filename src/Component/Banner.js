@@ -7,18 +7,13 @@ import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
 import { Card, Grid, Typography } from "@material-ui/core";
-import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import { fetchData, fetchDataRequest, fetchDataSuccess } from "../Redux/Action";
-import { Fragment } from "react";
+import { fetchData, fetchDataRequest, favoritesHandler } from "../Redux/Action";
+import FavoriteIcon from "@material-ui/icons/Favorite";
+import { MovieCreation } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
-  banner: {
-    backgroundColor: fade(theme.palette.text.secondary, 0.02),
-    height: "100vh",
-    padding: "20px 200px",
-  },
   Input: {
     display: "flex",
     flexDirection: "column",
@@ -43,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   iconButton: {
-    padding: 10,
+    padding: "10",
   },
   paper: {
     padding: theme.spacing(3),
@@ -54,9 +49,23 @@ const useStyles = makeStyles((theme) => ({
     color: "black",
     marginBottom: "60px",
   },
+  item: {
+    padding: "0",
+    transition: "transform 0.3s",
+    "&:hover": {
+      transform: "scale(1.1)",
+    },
+  },
 }));
 
-function Banner({ isloading, data, movieTitle, fetchData, fetchDataRequest }) {
+function Banner({
+  isloading,
+  movies,
+  movieTitle,
+  favoritesHandler,
+  fetchData,
+  fetchDataRequest,
+}) {
   const classes = useStyles();
 
   const changeHandler = (e) => {
@@ -76,7 +85,7 @@ function Banner({ isloading, data, movieTitle, fetchData, fetchDataRequest }) {
             type="submit"
             className={classes.iconButton}
             aria-label="search"
-            onSubmit={handleClick}
+            onClick={handleClick}
           >
             <SearchIcon />
           </IconButton>
@@ -90,28 +99,32 @@ function Banner({ isloading, data, movieTitle, fetchData, fetchDataRequest }) {
         <Divider className={classes.divider} />
       </div>
       <Grid container spacing={8}>
-        {!data ? (
-          <div>Loading...</div>
-        ) : (
-          <Fragment>
-            {data.map((val) => (
-              <Grid item xs={12} sm={6} md={4}>
-                <card>
-                  <CardActionArea>
-                    <CardMedia
-                      image={val.Poster}
-                      component="img"
-                      style={{ height: 300 }}
-                    />
-                    <CardContent>
-                      <Typography>{val.Title}</Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </card>
-              </Grid>
-            ))}
-          </Fragment>
-        )}
+        {movies.map((movie) => (
+          <Grid item xs={12} sm={6} md={4} className={classes.item}>
+            <Card
+              className={classes.card}
+              style={{
+                boxShadow: "7px 10px 16px 0px rgba(160,141,141,0.71)",
+                borderRadius: "7px",
+              }}
+            >
+              <CardMedia
+                image={movie.Poster}
+                component="img"
+                style={{ height: 300 }}
+              />
+              <CardContent
+                style={{ display: "flex", justifyContent: "space-around" }}
+              >
+                <Typography>{movie.Title}</Typography>
+                <FavoriteIcon
+                  onClick={() => favoritesHandler(movie)}
+                  style={{ cursor: "pointer" }}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
     </div>
   );
@@ -119,12 +132,14 @@ function Banner({ isloading, data, movieTitle, fetchData, fetchDataRequest }) {
 const mapStateToProps = (state) => ({
   movieTitle: state.movieTitle,
   isLoading: state.isLoading,
-  data: state.data,
+  movies: state.movies,
   error: state.error,
+  favorites: state.favorites,
 });
 const mapDispatchToProps = (dispatch) => ({
   fetchDataRequest: (payload) => dispatch(fetchDataRequest(payload)),
   fetchData: (payload) => dispatch(fetchData(payload)),
+  favoritesHandler: (payload) => dispatch(favoritesHandler(payload)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Banner);

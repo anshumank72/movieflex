@@ -2,6 +2,7 @@ import {
   FETCH_DATA_REQUEST,
   FETCH_DATA_SUCCESS,
   FETCH_DATA_FAILURE,
+  FAVORITES,
 } from "./ActionTypes";
 
 export const fetchDataRequest = (movieTitle) => {
@@ -10,19 +11,14 @@ export const fetchDataRequest = (movieTitle) => {
     payload: movieTitle,
   };
 };
-export const fetchDataSuccess = (data) => {
-  return {
-    type: FETCH_DATA_SUCCESS,
-    payload: data,
-  };
-};
 export const fetchData = (movieTitle) => (dispatch) => {
-  let url = `http://www.omdbapi.com/?apikey=86385d2f&s=${movieTitle}`;
+  let url = `http://www.omdbapi.com/?i=tt3896198&apikey=86385d2f&s=${movieTitle}`;
   fetch(url)
-    .then((res) =>
+    .then((res) => res.json())
+    .then((deta) =>
       dispatch({
         type: FETCH_DATA_SUCCESS,
-        payload: res.data,
+        payload: deta.Search,
       })
     )
     .catch((err) => console.log(err));
@@ -32,6 +28,12 @@ export const fetchDataFailure = (error) => {
   return {
     type: FETCH_DATA_FAILURE,
     payload: error,
+  };
+};
+export const favoritesHandler = (movie) => {
+  return {
+    type: FAVORITES,
+    payload: movie,
   };
 };
 
